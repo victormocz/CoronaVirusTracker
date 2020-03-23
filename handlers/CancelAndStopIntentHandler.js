@@ -4,6 +4,7 @@ class CancelAndStopIntentHandler {
             && (handlerInput.requestEnvelope.request.intent.name === 'AMAZON.CancelIntent'
                 || handlerInput.requestEnvelope.request.intent.name === 'AMAZON.StopIntent');
     }
+
     static handle(handlerInput) {
         const speechText = 'Have a good one, stay safe!';
 

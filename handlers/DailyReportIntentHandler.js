@@ -1,17 +1,18 @@
 const ReportGenerator = require('../report').ReportGenerator;
 const messages = require('../messages');
 
-class LaunchRequestHandler {
+class DailyReportIntentHandler {
     static canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'LaunchRequest';
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+            && handlerInput.requestEnvelope.request.intent.name === 'DailyReportIntent';
     }
 
     static handle(handlerInput) {
         return ReportGenerator.generateDailyReport().then((report) => {
             return handlerInput.responseBuilder
                 .speak(report + " " + messages.helpMessage)
-                .withSimpleCard("Today's COVID19 update", report)
                 .reprompt(messages.helpMessage)
+                .withSimpleCard("Today's COVID19 update", report)
                 .getResponse();
         }).catch((err) => {
             return handlerInput.responseBuilder
@@ -22,4 +23,4 @@ class LaunchRequestHandler {
     }
 }
 
-module.exports = LaunchRequestHandler;
+module.exports = DailyReportIntentHandler;

@@ -3,5 +3,8 @@ module.exports = {
     HelpIntentHandler : require('./HelpIntentHandler'),
     ErrorHandler : require('./ErrorHandler'),
     CancelAndStopIntentHandler : require('./CancelAndStopIntentHandler'),
-    SessionEndedRequestHandler : require('./SessionEndedRequestHandler')
+    SessionEndedRequestHandler : require('./SessionEndedRequestHandler'),
+    PreventionIntentHandler : require('./PreventionIntentHandler'),
+    QueryStateIntentHandler : require('./QueryStateIntentHandler'),
+    DailyReportIntentHandler : require('./DailyReportIntentHandler')
 }

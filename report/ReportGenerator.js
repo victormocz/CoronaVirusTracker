@@ -1,12 +1,14 @@
 const util = require('util');
 const Covid = require('../clients').Covid;
+const stateToAbbr = require('../util').stateToAbbr;
+
 
 class ReportGenerator {
     static generateDailyReport() {
-        const dailyReportFormat = "Welcome to Coronavirus tracker, Today in United States, there are totally %d people were tested, %d are positive, %d are negative, %d people are pending for the result. There are %d people dead"
-            + "and %d people hospitalized.";
+        const dailyReportFormat = "Welcome to Coronavirus tracker, Today in United States, there are total %d people tested, %d are positive, %d are negative, %d people are pending for the result. There are %d people dead,"
+            + "and %d people are hospitalized,";
         const errorReport = "Sorry, we are having trouble to retrieve data right now, please try again later";
-        return Covid.retrieveCurrentData().then((data)=> {
+        return Covid.retrieveDailyData().then((data) => {
             if (data.length == 0) {
                 throw new Error("Failed to fetch the data");
             }
@@ -19,15 +21,54 @@ class ReportGenerator {
                 extraReport = util.format(extraReportFormat, current.total - yesterday.total, current.positive - yesterday.positive, current.death - yesterday.death);
             }
             return dailyReport + extraReport;
-        }).catch((err)=> {
+        }).catch((err) => {
             return errorReport;
-        });   
+        });
+    }
+
+    static generateStateReport(state) {
+        var report = "Today in " + state + ", ";
+        return Covid.retrieveStateData().then((data) => {
+            const stateAbbr = stateToAbbr(state,'abbr');
+            const stateData = data.filter((item) => {
+                return item.state === stateAbbr;
+            });
+            if (stateData && stateData.length >= 1) {
+                if (stateData[0].total) {
+                    report += "There are total " + stateData[0].total + " people tested. ";
+                }
+                if (stateData[0].positive) {
+                    report += stateData[0].positive + " are positive. "
+                }
+                if (stateData[0].negative) {
+                    report += stateData[0].negative + " are negative. "
+                }
+                if (stateData[0].pending) {
+                    report + stateData[0].pending + " are pending for the result. "
+                }
+                if (stateData[0].death) {
+                    report += stateData[0].death + " are dead. "
+                }
+            }
+            if (stateData && stateData.length >= 2) {
+                report += "Compares to yesterday,"
+                if (stateData[1].total) {
+                    report += "There are " + (stateData[0].total - stateData[1].total) + " newly tested people. ";
+                }
+                if (stateData[1].positive) {
+                    report += (stateData[0].positive - stateData[1].positive) + " new positive. ";
+                }
+                if (stateData[1].death) {
+                    report += (stateData[0].death - stateData[1].death) + " people dead. ";
+                }
+            }
+            return report;
+        }).catch((err) => {
+            console.error(err);
+            return "Sorry, we are having trouble to retrieve data right now, please try again later.";
+        });
     }
 }
-
-ReportGenerator.generateDailyReport().then((report)=>{
-    console.log(report);
-});
 
 module.exports = ReportGenerator;
 /*
