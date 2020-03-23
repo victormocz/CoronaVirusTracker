@@ -3,12 +3,22 @@ const Covid = require('../clients').Covid;
 
 class ReportGenerator {
     static generateDailyReport() {
-        const dailyReportFormat = "Welcome to Coronavirus tracker, At present, there are %d people were tested, %d are positive, %d are negative, %d deaths "
-            + "and %d people hospitalized in United state.";
+        const dailyReportFormat = "Welcome to Coronavirus tracker, Today in United States, there are totally %d people were tested, %d are positive, %d are negative, %d people are pending for the result. There are %d people dead"
+            + "and %d people hospitalized.";
         const errorReport = "Sorry, we are having trouble to retrieve data right now, please try again later";
         return Covid.retrieveCurrentData().then((data)=> {
-            const current = data[0];
-            return util.format(dailyReportFormat, current.total, current.positive, current.negative, current.death, current.hospitalized);
+            if (data.length == 0) {
+                throw new Error("Failed to fetch the data");
+            }
+            const current = data[data.length - 1];
+            const dailyReport = util.format(dailyReportFormat, current.total, current.positive, current.negative, current.pending, current.death, current.hospitalized);
+            var extraReport = "";
+            if (data.length >= 2) {
+                const yesterday = data[data.length - 2];
+                const extraReportFormat = "Compares to yesterday, there are %d newly tested people, %d new positive, %d people dead.";
+                extraReport = util.format(extraReportFormat, current.total - yesterday.total, current.positive - yesterday.positive, current.death - yesterday.death);
+            }
+            return dailyReport + extraReport;
         }).catch((err)=> {
             return errorReport;
         });   
