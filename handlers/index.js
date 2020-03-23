@@ -1,5 +1,3 @@
-const ErrorHandler = require('./ErrorHandler');
-
 module.exports = {
     LaunchRequestHandler : require('./LaunchRequestHandler'),
     HelpIntentHandler : require('./HelpIntentHandler'),
